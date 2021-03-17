@@ -1,0 +1,37 @@
+---
+layout: single
+title: "타조"
+date: 2021-03-10 19:37:25 +0900
+---
+
+# 타조
+## 위키백과는 우리 모두의 백과사전
+
+볼드체: **타조**는 아프리카에 산다 왜냐면 모른다
+
+이탤릭체: 학명은 *struthio camelus*이다 
+
+# Header1
+## Header2
+### Header3
+#### Header4
+##### Header5
+###### Header6
+
+1. 어원
+2. 서식지
+3. 번식 및 산란
+4. 천적
+5. 아프리카
+
+```c
+include <stdio.h>
+int main() {
+	return 0;
+}
+```
+
+기억 나는건 `variable`이랑 뭐더라 `post` 뭐 이정도 기억 난다 
+
+[여기를 눌러보세요](https://naver.com)
+![](https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.pinimg.com%2F736x%2Fe9%2F2b%2Fe4%2Fe92be45a0a37ee185912916fa57dd00d.jpg&type=sc960_832)
