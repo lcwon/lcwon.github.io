@@ -1,0 +1,460 @@
+# Strassen Matrix Algoritm
+
+## 알고리즘 설명
+
+슈트라센 알고리즘은 기존의 행렬 곱셈 방식의 시간 복잡도보다 빠르게 보완한 행렬 곱셈알고리즘이다.
+정의에 따르면, NxN의 행렬을 곱하면 시간복잡도가 O(n^3)이지만 슈트라센 알고리즘의 시간 복잡도는 O(n^2.807)이다.
+
+
+이는 행렬이 정사각행렬이면서, n이 짝수 일때 실행된다.
+
+AxB = C라고 하면 
+
+![](https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.geeksforgeeks.org%2Fstrassens-matrix-multiplication%2F&psig=AOvVaw2ch04tcsrGB9Vs-KpPe-5H&ust=1619434545631000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCODfr_2dmfACFQAAAAAdAAAAABAL)
+
+위의 그림과 같이 행렬의 곱센이 수행된다. 이때, 곱셈 8번과 덧셈 4번이 수행된다.
+
+
+슈트라센 알고리즘은 연산의 수를 줄여서 시간 복잡도를 줄인다.
+
+![](https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.brainkart.com%2Farticle%2FStrassen---s-Matrix-Multiplication_8026%2F&psig=AOvVaw2ch04tcsrGB9Vs-KpPe-5H&ust=1619434545631000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCODfr_2dmfACFQAAAAAdAAAAABAS)
+
+이렇게 하면, 7번의 곱셈과 18번의 덧셈을 수행하게 되는데 , n이 큰경우에 곱셈보다 덧셈을 하는게 시간적으로 더 효율적이기 때문에
+이 방법이 효율적이다. 
+
+
+## 코드설명
+
+### main 
+
+```java
+ public static void main (String[] args) {
+        StrassenMatrix s = new StrassenMatrix();
+
+        Scanner scan = new Scanner(System.in);
+        System.out.println("짝수를 입력하세요");
+        int n = scan.nextInt();
+
+
+        int start = (int) System.currentTimeMillis();
+        int[][] A = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                A[i][j] = (int)(Math.random()*100)+1;
+
+        int[][] B = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                B[i][j] =  (int)(Math.random()*100)+1;
+
+        int[][] C = s.Strassen(A, B);
+
+        System.out.println("행렬 A = ");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(A[i][j] + " ");
+            }System.out.println();
+        }
+
+        System.out.println("행렬 B = ");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(B[i][j] + " ");
+            }System.out.println();
+        }
+
+        System.out.println("A x B =");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(C[i][j] + " ");
+            }System.out.println();
+        }
+
+        int end = (int) System.currentTimeMillis();
+        int processTime = end - start;
+        System.out.printf("%d sec, %d ms", processTime / 1000, processTime % 1000);
+        }
+```
+해당 알고리즘은 n이 짝수인 정사각 행렬의 곱샘을 수행하는 알고리즘이므로 n은 짝수를 입력한다.
+
+
+
+행렬 `A`와 `B`는 nxn행렬로 선언한다. 실행 시 행렬 입력의 번거로움을 덜기 위해 행렬의 원소를 랜덤으로 넣는다.
+그리고 행렬 `A`,  `B`  그리고 `C`를 출력한다.
+행렬 `C`는 `AxB`의 결과이다.
+
+성능 분석을 위해서 시작 시간과 종료시간의 인수 `start`와 `end`를 선언한다.
+
+실행 시간은 종료 시간 - 시작 시간으로 `processTime`을 선언하고 출력한다.
+
+### Strassen
+
+```java
+public int [][]Strassen(int A[][], int B[][]) {
+        int n = A.length;
+        int C[][] = new int[n][n];
+        if (n == 1) {
+                    C[0][0] = A[0][0] * B[0][0];
+
+            } else {
+
+
+            int[][] A11 = new int[n/2][n/2];
+            int[][] A12 = new int[n/2][n/2];
+            int[][] A21 = new int[n/2][n/2];
+            int[][] A22 = new int[n/2][n/2];
+            int[][] B11 = new int[n/2][n/2];
+            int[][] B12 = new int[n/2][n/2];
+            int[][] B21 = new int[n/2][n/2];
+            int[][] B22 = new int[n/2][n/2];
+
+            div(A, A11, 0 , 0);
+            div(A, A12, 0 , n/2);
+            div(A, A21, n/2, 0);
+            div(A, A22, n/2, n/2);
+
+            div(B, B11, 0 , 0);
+            div(B, B12, 0 , n/2);
+            div(B, B21, n/2, 0);
+            div(B, B22, n/2, n/2);
+
+
+            int[][] M1 = M1(A11, A22, B11, B22);
+            int[][] M2 = M25(A21, A22, B11);
+            int[][] M3 = M34(B12, B22, A11);
+            int[][] M4 = M34(B12, B11, A22);
+            int[][] M5 = M25(A11, A12, B22);
+            int[][] M6 = M67(A21, A11, B11, B12);
+            int[][] M7 = M67(A12, A22, B21, B22);
+
+            int C11[][] = C1122(M1, M4, M7, M5);
+            int C12[][] = C1221(M3, M5);
+            int C21[][] = C1221(M2, M4);
+            int C22[][] = C1122(M1, M3, M6, M2);
+
+            printC(C11, C, 0, 0);
+            printC(C12, C, 0, n / 2);
+            printC(C21, C, n / 2, 0);
+            printC(C22, C, n / 2, n / 2);
+
+
+        }
+    return C;
+    }
+```
+
+다음은 슈트라센 알고리즘 코드이다.
+
+슈트라센 알고리즘의 핵심은 `A`와 `B`를 4개의 행렬로 나누어서 계산하는 것이므로 
+A와 B를 4게로 나누어 각각  `A11`, `A12`, `A21`, `A22`, `B11`, `B12`, `B21`, `B22`라고 한다.
+이들은 `n/2 x n/2` 크기의 행렬이다. 여기서 `M1`, `M2`, `M3`, `M4`, `M5`, `M6`, `M7`을 위에서 보인 사진과 같이 선언한다.
+
+C또힌 위에서 보인 사진과 같이 연산하는 과정을 보인다.
+
+이때, A와 B는 4개의 행렬로 분할해서 계산 했기 때문에 이들의 결과식인 C는 분할한 것들의 계산식인
+`C11`, `C12`, `C21`, `C22`를 다시 합쳐야 온전한 `C= A x B`가 된다.
+
+
+`M1 = (A11 + A22) * (B11 + B22)`이기 때문에 M1함수에 `A11`, `A22`, `B11`, `B22`대입한다.
+
+ 
+main메소드에서 C를 출력하기때문에 리턴값은 `C`이다.
+
+### 계산 하기
+
+이 알고리즘을 수행하기 위해서 다양한 계산식들을 선언하였다.
+
+
+```java
+public static int[][] M1(int a[][],int b[][], int c[][], int d[][]){
+        int n = a.length;
+        int S[][] = new int [n][n];
+
+        for (int i = 0; i< n;i++){
+            for (int j = 0;j<n;j++){
+                S[i][j] = (a[i][j] + b[i][j]) * (c[i][j]+d[i][j]);
+            }
+        }
+        return S;
+    }
+```
+
+함수 `M1`은 A와 B를 분할한 행렬들을 대입하여 행렬 `M1`을 계산하기위해 만들었다.
+
+```java
+public static int[][] M25(int a[][],int b[][], int c[][]){
+        int n = a.length;
+        int S[][] = new int [n][n];
+
+        for (int i = 0; i< n;i++){
+            for (int j = 0;j<n;j++){
+                S[i][j] = (a[i][j] + b[i][j]) * c[i][j];
+            }
+        }
+        return S;
+    }
+```
+
+함수 `M25`는 A와 B를 분할한 행렬들을 대입하여 행렬 `M2`와 행렬 `M5`을 계산하기위해 만들었다.
+
+```java
+ public static int[][] M34(int a[][],int b[][], int c[][]){
+        int n = a.length;
+        int S[][] = new int [n][n];
+
+        for (int i = 0; i< n;i++){
+            for (int j = 0;j<n;j++){
+                S[i][j] = (a[i][j] - b[i][j]) * c[i][j];
+            }
+        }
+        return S;
+    }
+```
+
+함수 `M34`는 A와 B를 분할한 행렬들을 대입하여 행렬 `M3`와 행렬 `M4`을 계산하기위해 만들었다.
+
+```java
+ public static int[][] M67(int a[][],int b[][], int c[][], int d[][]){
+        int n = a.length;
+        int S[][] = new int [n][n];
+
+        for (int i = 0; i< n;i++){
+            for (int j = 0;j<n;j++){
+                S[i][j] = (a[i][j] - b[i][j]) * (c[i][j] + d[i][j]);
+            }
+        }
+        return S;
+    }
+```
+
+`M67`은 A와 B를 분할한 행렬들을 대입하여 행렬 `M6`과 `M7`을 계산하기 위해 만들었다.
+
+```java
+ public static int[][] C1122(int a[][], int b[][], int c[][], int d[][]){
+        int n = a.length;
+        int C[][] = new int [n][n];
+        for (int i = 0;i < n; i++){
+            for (int j = 0; j < n;j++){
+                C[i][j] = a[i][j]+b[i][j]+c[i][j]-d[i][j];
+            }
+        }
+        return C;
+    }
+
+    public static int[][] C1221(int a[][],int b[][]){
+        int n = a.length;
+        int C[][] = new int [n][n];
+        for (int i = 0;i<n;i++){
+            for (int j = 0; j< n;j++){
+                C[i][j] = a[i][j] + b[i][j];
+            }
+        }
+        return C;
+    }
+```
+
+`C1122`는 `C11`과 `C22`를 연산하기 위해, `C1221`은 `C12`와 `C21`을 연산하기 위해 만들었다.
+4개의 분할된 C행렬들의 계산 방식은 변수만 다르기 때문에 각각 한번에 선언했다.
+
+```java
+public void div(int[][] P, int[][] C, int k, int t)
+    {
+        for(int i1 = 0, i2 = k; i1 < C.length; i1++, i2++)
+            for(int j1 = 0, j2 = t; j1 < C.length; j1++, j2++)
+                C[i1][j1] = P[i2][j2];
+    }
+```
+
+행렬 A와 B를 분할 하기 위해서 `div`라는 `void`를 선언하였다.
+
+for문이 뜻하는 바는 
+
+
+```java
+import java.util.Scanner;
+public class StrassenMatrix {
+
+    public int [][]Strassen(int A[][], int B[][]) {
+        int n = A.length;
+        int C[][] = new int[n][n];
+        if (n == 1) {
+                    C[0][0] = A[0][0] * B[0][0];
+
+            } else {
+
+
+            int[][] A11 = new int[n/2][n/2];
+            int[][] A12 = new int[n/2][n/2];
+            int[][] A21 = new int[n/2][n/2];
+            int[][] A22 = new int[n/2][n/2];
+            int[][] B11 = new int[n/2][n/2];
+            int[][] B12 = new int[n/2][n/2];
+            int[][] B21 = new int[n/2][n/2];
+            int[][] B22 = new int[n/2][n/2];
+
+            div(A, A11, 0 , 0);
+            div(A, A12, 0 , n/2);
+            div(A, A21, n/2, 0);
+            div(A, A22, n/2, n/2);
+
+            div(B, B11, 0 , 0);
+            div(B, B12, 0 , n/2);
+            div(B, B21, n/2, 0);
+            div(B, B22, n/2, n/2);
+
+
+            int[][] M1 = M1(A11, A22, B11, B22);
+            int[][] M2 = M25(A21, A22, B11);
+            int[][] M3 = M34(B12, B22, A11);
+            int[][] M4 = M34(B12, B11, A22);
+            int[][] M5 = M25(A11, A12, B22);
+            int[][] M6 = M67(A21, A11, B11, B12);
+            int[][] M7 = M67(A12, A22, B21, B22);
+
+            int C11[][] = C1122(M1, M4, M7, M5);
+            int C12[][] = C1221(M3, M5);
+            int C21[][] = C1221(M2, M4);
+            int C22[][] = C1122(M1, M3, M6, M2);
+
+            printC(C11, C, 0, 0);
+            printC(C12, C, 0, n / 2);
+            printC(C21, C, n / 2, 0);
+            printC(C22, C, n / 2, n / 2);
+
+
+        }
+    return C;
+    }
+
+    public static int[][] M1(int a[][],int b[][], int c[][], int d[][]){
+        int n = a.length;
+        int S[][] = new int [n][n];
+
+        for (int i = 0; i< n;i++){
+            for (int j = 0;j<n;j++){
+                S[i][j] = (a[i][j] + b[i][j]) * (c[i][j]+d[i][j]);
+            }
+        }
+        return S;
+    }
+
+    public static int[][] M25(int a[][],int b[][], int c[][]){
+        int n = a.length;
+        int S[][] = new int [n][n];
+
+        for (int i = 0; i< n;i++){
+            for (int j = 0;j<n;j++){
+                S[i][j] = (a[i][j] + b[i][j]) * c[i][j];
+            }
+        }
+        return S;
+    }
+
+    public static int[][] M34(int a[][],int b[][], int c[][]){
+        int n = a.length;
+        int S[][] = new int [n][n];
+
+        for (int i = 0; i< n;i++){
+            for (int j = 0;j<n;j++){
+                S[i][j] = (a[i][j] - b[i][j]) * c[i][j];
+            }
+        }
+        return S;
+    }
+
+    public static int[][] M67(int a[][],int b[][], int c[][], int d[][]){
+        int n = a.length;
+        int S[][] = new int [n][n];
+
+        for (int i = 0; i< n;i++){
+            for (int j = 0;j<n;j++){
+                S[i][j] = (a[i][j] - b[i][j]) * (c[i][j] + d[i][j]);
+            }
+        }
+        return S;
+    }
+    public static int[][] C1122(int a[][], int b[][], int c[][], int d[][]){
+        int n = a.length;
+        int C[][] = new int [n][n];
+        for (int i = 0;i < n; i++){
+            for (int j = 0; j < n;j++){
+                C[i][j] = a[i][j]+b[i][j]+c[i][j]-d[i][j];
+            }
+        }
+        return C;
+    }
+
+    public static int[][] C1221(int a[][],int b[][]){
+        int n = a.length;
+        int C[][] = new int [n][n];
+        for (int i = 0;i<n;i++){
+            for (int j = 0; j< n;j++){
+                C[i][j] = a[i][j] + b[i][j];
+            }
+        }
+        return C;
+    }
+    public void div(int[][] P, int[][] C, int k, int t)
+    {
+        for(int i1 = 0, i2 = k; i1 < C.length; i1++, i2++)
+            for(int j1 = 0, j2 = t; j1 < C.length; j1++, j2++)
+                C[i1][j1] = P[i2][j2];
+    }
+    public void printC(int[][] C, int[][] P, int k, int t)
+    {
+        for(int i1 = 0, i2 = k; i1 < C.length; i1++, i2++)
+            for(int j1 = 0, j2 = t; j1 < C.length; j1++, j2++)
+                P[i2][j2] = C[i1][j1];
+    }
+
+
+
+    public static void main (String[] args) {
+        StrassenMatrix s = new StrassenMatrix();
+
+        Scanner scan = new Scanner(System.in);
+        System.out.println("짝수를 입력하세요");
+        int n = scan.nextInt();
+
+
+        int start = (int) System.currentTimeMillis();
+        int[][] A = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                A[i][j] = (int)(Math.random()*100)+1;
+
+        int[][] B = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                B[i][j] =  (int)(Math.random()*100)+1;
+
+        int[][] C = s.Strassen(A, B);
+
+        System.out.println("행렬 A = ");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(A[i][j] + " ");
+            }System.out.println();
+        }
+
+        System.out.println("행렬 B = ");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(B[i][j] + " ");
+            }System.out.println();
+        }
+
+        System.out.println("A x B =");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(C[i][j] + " ");
+            }System.out.println();
+        }
+
+        int end = (int) System.currentTimeMillis();
+        int processTime = end - start;
+        System.out.printf("%d sec, %d ms", processTime / 1000, processTime % 1000);
+        }
+    }
+```
+
